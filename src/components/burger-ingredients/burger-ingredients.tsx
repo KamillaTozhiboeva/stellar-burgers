@@ -3,12 +3,17 @@ import { useInView } from 'react-intersection-observer';
 
 import { TTabMode } from '@utils-types';
 import { BurgerIngredientsUI } from '../ui/burger-ingredients';
+import { useSelector } from '../../services/store';
+import { getIngredients } from '../../services/slices/ingredientsSlice';
 
 export const BurgerIngredients: FC = () => {
-  /** TODO: взять переменные из стора */
-  const buns = [];
-  const mains = [];
-  const sauces = [];
+  // 1. Берём реальные ингредиенты из Redux-стора
+  const allIngredients = useSelector(getIngredients);
+
+  // 2. Фильтруем ингредиенты по их типу (категориям)
+  const buns = allIngredients.filter((item) => item.type === 'bun');
+  const mains = allIngredients.filter((item) => item.type === 'main');
+  const sauces = allIngredients.filter((item) => item.type === 'sauce');
 
   const [currentTab, setCurrentTab] = useState<TTabMode>('bun');
   const titleBunRef = useRef<HTMLHeadingElement>(null);
@@ -47,7 +52,7 @@ export const BurgerIngredients: FC = () => {
       titleSaucesRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  return null;
+  // УДАЛИЛИ "return null;" отсюда, чтобы компонент рендерился!
 
   return (
     <BurgerIngredientsUI

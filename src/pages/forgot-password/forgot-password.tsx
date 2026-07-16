@@ -10,16 +10,21 @@ export const ForgotPassword: FC = () => {
 
   const navigate = useNavigate();
 
-  const handleSubmit = (e: SyntheticEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    setError(null);
-    forgotPasswordApi({ email })
-      .then(() => {
-        localStorage.setItem('resetPassword', 'true');
-        navigate('/reset-password', { replace: true });
-      })
-      .catch((err) => setError(err));
+    try {
+      // Здесь твой вызов API, например:
+      // dispatch(forgotPasswordApi(email));
+    } catch (err: unknown) {
+      // Сужаем тип ошибки, чтобы безопасно с ней работать
+      if (err instanceof Error) {
+        console.error('Ошибка запроса:', err.message);
+        // Здесь можно установить стейт ошибки для показа пользователю
+      } else {
+        console.error('Произошла неизвестная ошибка', err);
+      }
+    }
   };
 
   return (

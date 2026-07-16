@@ -1,61 +1,55 @@
-import { ProfileUI } from '@ui-pages';
 import { FC, SyntheticEvent, useEffect, useState } from 'react';
+import { ProfileUI } from '@ui-pages';
+import { useDispatch, useSelector } from '../../services/store';
+import { updateUser } from '../../services/slices/userSlice';
 
 export const Profile: FC = () => {
-  /** TODO: взять переменную из стора */
-  const user = {
-    name: '',
-    email: ''
-  };
+  const dispatch = useDispatch();
+  const { user } = useSelector((state) => state.user);
 
   const [formValue, setFormValue] = useState({
-    name: user.name,
-    email: user.email,
+    name: '',
+    email: '',
     password: ''
   });
 
+  // Заполняем форму только когда данные пользователя пришли с сервера
   useEffect(() => {
-    setFormValue((prevState) => ({
-      ...prevState,
-      name: user?.name || '',
-      email: user?.email || ''
-    }));
+    if (user) {
+      setFormValue({
+        name: user.name,
+        email: user.email,
+        password: ''
+      });
+    }
   }, [user]);
 
-  const isFormChanged =
-    formValue.name !== user?.name ||
-    formValue.email !== user?.email ||
-    !!formValue.password;
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormValue({ ...formValue, [e.target.name]: e.target.value });
+  };
 
   const handleSubmit = (e: SyntheticEvent) => {
     e.preventDefault();
+    dispatch(updateUser(formValue));
   };
 
   const handleCancel = (e: SyntheticEvent) => {
     e.preventDefault();
-    setFormValue({
-      name: user.name,
-      email: user.email,
-      password: ''
-    });
-  };
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormValue((prevState) => ({
-      ...prevState,
-      [e.target.name]: e.target.value
-    }));
+    if (user)
+      setFormValue({ name: user.name, email: user.email, password: '' });
   };
 
   return (
     <ProfileUI
       formValue={formValue}
-      isFormChanged={isFormChanged}
+      isFormChanged={
+        formValue.name !== user?.name ||
+        formValue.email !== user?.email ||
+        !!formValue.password
+      }
+      handleInputChange={handleInputChange}
       handleCancel={handleCancel}
       handleSubmit={handleSubmit}
-      handleInputChange={handleInputChange}
     />
   );
-
-  return null;
 };

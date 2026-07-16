@@ -1,23 +1,32 @@
 import { FC, useMemo } from 'react';
+import { useParams } from 'react-router-dom';
 import { Preloader } from '../ui/preloader';
 import { OrderInfoUI } from '../ui/order-info';
 import { TIngredient } from '@utils-types';
+import { useSelector } from '../../services/store';
+// Импортируем селекторы из наших готовых слайсов
+import { getIngredients } from '../../services/slices/ingredientsSlice';
+import { getFeedsOrders } from '../../services/slices/feedsSlice';
+import { getUserOrders } from '../../services/slices/ordersSlice';
 
 export const OrderInfo: FC = () => {
-  /** TODO: взять переменные orderData и ingredients из стора */
-  const orderData = {
-    createdAt: '',
-    ingredients: [],
-    _id: '',
-    status: '',
-    name: '',
-    updatedAt: 'string',
-    number: 0
-  };
+  // 1. Достаем номер заказа из URL (роутер подставит его автоматически)
+  const { number } = useParams();
 
-  const ingredients: TIngredient[] = [];
+  // 2. Получаем списки ингредиентов и все загруженные заказы из Redux
+  const ingredients = useSelector(getIngredients);
+  const feedOrders = useSelector(getFeedsOrders);
+  const userOrders = useSelector(getUserOrders);
 
-  /* Готовим данные для отображения */
+  // 3. Ищем заказ с нужным номером в обоих массивах
+  const orderData = useMemo(() => {
+    // Объединяем общую ленту и личные заказы профиля
+    const allOrders = [...feedOrders, ...userOrders];
+    // Ищем совпадение по номеру (приводим к Number, так как из useParams приходит строка)
+    return allOrders.find((order) => order.number === Number(number)) || null;
+  }, [feedOrders, userOrders, number]);
+
+  // 4. Стандартная логика сборки заказа для UI (из шаблона Практикума)
   const orderInfo = useMemo(() => {
     if (!orderData || !ingredients.length) return null;
 
@@ -59,6 +68,7 @@ export const OrderInfo: FC = () => {
     };
   }, [orderData, ingredients]);
 
+  // Если заказ пока не найден, крутим лоадер
   if (!orderInfo) {
     return <Preloader />;
   }
