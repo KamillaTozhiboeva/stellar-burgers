@@ -1,13 +1,9 @@
 import { FC } from 'react';
-import { useSelector } from '../../services/store';
 import { AppHeaderUI } from '@ui';
+import { useSelector } from '../../services/store';
 
 export const AppHeader: FC = () => {
-  // Достаём имя авторизованного пользователя из Redux-стейта,
-  // чтобы оно отображалось на кнопке «Личный кабинет»
-  const { user } = useSelector((store) => store.user);
+  const user = useSelector((state) => state.user.user);
 
-  // Передаем имя пользователя (если он авторизован) в UI-компонент шапки.
-  // AppHeaderUI внутри себя уже содержит NavLink'и на '/', '/feed' и '/profile'.
   return <AppHeaderUI userName={user?.name} />;
 };

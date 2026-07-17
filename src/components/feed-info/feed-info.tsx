@@ -8,7 +8,6 @@ import {
   getFeedsTotalToday
 } from '../../services/slices/feedsSlice';
 
-// Вспомогательная функция для фильтрации по статусу
 const getOrdersByStatus = (orders: TOrder[], status: string): number[] =>
   orders
     .filter((item) => item.status === status)
@@ -16,7 +15,6 @@ const getOrdersByStatus = (orders: TOrder[], status: string): number[] =>
     .slice(0, 20);
 
 export const FeedInfo: FC = () => {
-  // Достаем данные с использованием правильных названий селекторов
   const orders = useSelector(getFeedsOrders);
   const total = useSelector(getFeedsTotal);
   const totalToday = useSelector(getFeedsTotalToday);

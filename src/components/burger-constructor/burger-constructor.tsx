@@ -6,7 +6,6 @@ import {
   getConstructorState,
   clearConstructor
 } from '../../services/slices/constructorSlice';
-// Импортируем Thunk и селекторы из нового слайса
 import {
   orderBurger,
   clearOrder,
@@ -20,10 +19,8 @@ export const BurgerConstructor: FC = () => {
 
   const { bun, ingredients } = useSelector(getConstructorState);
 
-  // Получаем данные пользователя из стейта (убедись, что селектор написан правильно)
-  const { user } = useSelector((store: any) => store.user);
+  const { user } = useSelector((state) => state.user);
 
-  // Получаем статусы заказа из Redux вместо useState
   const orderRequest = useSelector(getOrderRequest);
   const orderModalData = useSelector(getOrderModalData);
 
@@ -50,20 +47,17 @@ export const BurgerConstructor: FC = () => {
       bun._id
     ];
 
-    // Диспатчим Thunk вместо прямого вызова API
     dispatch(orderBurger(orderDataIds))
       .unwrap()
       .then(() => {
         dispatch(clearConstructor());
       })
       .catch((err: unknown) => {
-        // Добавили : unknown
         console.error('Ошибка:', err);
       });
   };
 
   const closeOrderModal = () => {
-    // Очищаем данные заказа в Redux при закрытии модалки
     dispatch(clearOrder());
   };
 

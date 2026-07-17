@@ -10,20 +10,15 @@ export const ResetPassword: FC = () => {
   const [token, setToken] = useState('');
   const [error, setError] = useState<Error | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: SyntheticEvent) => {
     e.preventDefault();
-
-    try {
-      // Здесь твой вызов API, например:
-      // dispatch(forgotPasswordApi(email));
-    } catch (err: unknown) {
-      // Сужаем тип ошибки, чтобы безопасно с ней работать
-      if (err instanceof Error) {
-        console.error('Ошибка запроса:', err.message);
-        // Здесь можно установить стейт ошибки для показа пользователю
-      } else {
-        console.error('Произошла неизвестная ошибка', err);
-      }
+    if (password && token) {
+      resetPasswordApi({ password, token })
+        .then(() => {
+          localStorage.removeItem('resetPassword');
+          navigate('/login', { replace: true });
+        })
+        .catch((err) => setError(err));
     }
   };
 

@@ -43,5 +43,4 @@ export const ordersSlice = createSlice({
 
 export default ordersSlice.reducer;
 
-// Вот этот селектор с правильной типизацией RootState починит профиль!
 export const getUserOrders = (state: RootState) => state.orders.history;

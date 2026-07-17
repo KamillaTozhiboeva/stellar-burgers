@@ -21,7 +21,6 @@ export const Register: FC = () => {
     dispatch(registerUser({ name: userName, email, password }))
       .unwrap()
       .then(() => {
-        // После успешной регистрации отправляем пользователя на главную страницу
         navigate('/', { replace: true });
       })
       .catch((err) => {

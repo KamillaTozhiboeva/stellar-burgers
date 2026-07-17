@@ -8,7 +8,8 @@ import {
   TRegisterData,
   TLoginData
 } from '../../utils/burger-api';
-import { RootState } from '../store'; // Обязательно импортируем RootState для селекторов
+import { RootState } from '../store';
+import { setCookie } from '../../utils/cookie';
 
 interface IUserState {
   user: { email: string; name: string } | null;
@@ -27,15 +28,10 @@ const initialState: IUserState = {
 export const checkUserAuth = createAsyncThunk(
   'user/checkAuth',
   async (_, { rejectWithValue }) => {
-    if (!localStorage.getItem('accessToken')) {
-      return null;
-    }
     try {
       const data = await getUserApi();
       return data.user;
     } catch (error) {
-      localStorage.removeItem('accessToken');
-      localStorage.removeItem('refreshToken');
       return rejectWithValue(error);
     }
   }
@@ -46,7 +42,7 @@ export const loginUser = createAsyncThunk(
   async (data: TLoginData, { rejectWithValue }) => {
     try {
       const res = await loginUserApi(data);
-      localStorage.setItem('accessToken', res.accessToken);
+      setCookie('accessToken', res.accessToken);
       localStorage.setItem('refreshToken', res.refreshToken);
       return res.user;
     } catch (error) {
@@ -60,7 +56,7 @@ export const registerUser = createAsyncThunk(
   async (data: TRegisterData, { rejectWithValue }) => {
     try {
       const res = await registerUserApi(data);
-      localStorage.setItem('accessToken', res.accessToken);
+      setCookie('accessToken', res.accessToken);
       localStorage.setItem('refreshToken', res.refreshToken);
       return res.user;
     } catch (error) {
@@ -74,8 +70,8 @@ export const logoutUser = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       await logoutApi();
-      // Чистим хранилище только внутри Thunk — это правильно!
-      localStorage.removeItem('accessToken');
+      setCookie('accessToken', '', { expires: -1 });
+      localStorage.removeItem('refreshToken');
       localStorage.removeItem('refreshToken');
     } catch (error) {
       return rejectWithValue(error);
@@ -125,7 +121,11 @@ export const userSlice = createSlice({
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.isLoading = false;
-        state.error = action.error.message || 'Ошибка входа';
+        const payload = action.payload as any;
+        state.error =
+          typeof payload === 'string'
+            ? payload
+            : payload?.message || 'Ошибка входа';
       })
       .addCase(registerUser.pending, (state) => {
         state.isLoading = true;
@@ -137,21 +137,36 @@ export const userSlice = createSlice({
       })
       .addCase(registerUser.rejected, (state, action) => {
         state.isLoading = false;
-        state.error = action.error.message || 'Ошибка регистрации';
+        const payload = action.payload as any;
+        state.error =
+          typeof payload === 'string'
+            ? payload
+            : payload?.message || 'Ошибка регистрации';
       })
       .addCase(logoutUser.fulfilled, (state) => {
-        // Редьюсер теперь абсолютно чистый — только меняет стейт
         state.user = null;
         state.isAuthChecked = true;
       })
+      .addCase(updateUser.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
       .addCase(updateUser.fulfilled, (state, action) => {
+        state.isLoading = false;
         state.user = action.payload;
+      })
+      .addCase(updateUser.rejected, (state, action) => {
+        state.isLoading = false;
+        const payload = action.payload as any;
+        state.error =
+          typeof payload === 'string'
+            ? payload
+            : payload?.message || 'Ошибка обновления';
       });
   }
 });
 
 export default userSlice.reducer;
 
-// Экспортируем типизированные селекторы для компонентов
 export const getIsAuthChecked = (state: RootState) => state.user.isAuthChecked;
 export const getUser = (state: RootState) => state.user.user;

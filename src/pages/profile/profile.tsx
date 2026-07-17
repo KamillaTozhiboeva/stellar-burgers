@@ -13,7 +13,6 @@ export const Profile: FC = () => {
     password: ''
   });
 
-  // Заполняем форму только когда данные пользователя пришли с сервера
   useEffect(() => {
     if (user) {
       setFormValue({

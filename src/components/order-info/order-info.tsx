@@ -1,34 +1,46 @@
-import { FC, useMemo } from 'react';
-import { useParams } from 'react-router-dom';
+import { FC, useEffect, useMemo } from 'react';
 import { Preloader } from '../ui/preloader';
 import { OrderInfoUI } from '../ui/order-info';
-import { TIngredient } from '@utils-types';
-import { useSelector } from '../../services/store';
-// Импортируем селекторы из наших готовых слайсов
-import { getIngredients } from '../../services/slices/ingredientsSlice';
-import { getFeedsOrders } from '../../services/slices/feedsSlice';
-import { getUserOrders } from '../../services/slices/ordersSlice';
+import { TOrder, TIngredient } from '@utils-types';
+import { useParams } from 'react-router-dom';
+import { useSelector, useDispatch } from '../../services/store';
+import { getOrderByNumberApi } from '../../utils/burger-api';
 
 export const OrderInfo: FC = () => {
-  // 1. Достаем номер заказа из URL (роутер подставит его автоматически)
-  const { number } = useParams();
+  const { number } = useParams<{ number: string }>();
+  const dispatch = useDispatch();
 
-  // 2. Получаем списки ингредиентов и все загруженные заказы из Redux
-  const ingredients = useSelector(getIngredients);
-  const feedOrders = useSelector(getFeedsOrders);
-  const userOrders = useSelector(getUserOrders);
+  const feedOrders = useSelector((state) => state.feeds.orders || []);
 
-  // 3. Ищем заказ с нужным номером в обоих массивах
-  const orderData = useMemo(() => {
-    // Объединяем общую ленту и личные заказы профиля
-    const allOrders = [...feedOrders, ...userOrders];
-    // Ищем совпадение по номеру (приводим к Number, так как из useParams приходит строка)
-    return allOrders.find((order) => order.number === Number(number)) || null;
-  }, [feedOrders, userOrders, number]);
+  const profileOrders = useSelector(
+    (state) => (state.orders as any).orders || state.orders || []
+  );
+  const allIngredients = useSelector(
+    (state) => state.ingredients.ingredients || []
+  );
 
-  // 4. Стандартная логика сборки заказа для UI (из шаблона Практикума)
+  const orderData = useMemo(
+    () =>
+      feedOrders?.find((o: TOrder) => o.number === Number(number)) ||
+      profileOrders?.find((o: TOrder) => o.number === Number(number)) ||
+      null,
+    [feedOrders, profileOrders, number]
+  );
+
+  useEffect(() => {
+    if (!orderData && number) {
+      getOrderByNumberApi(Number(number))
+        .then((res) => {
+          if (res.success) {
+            
+          }
+        })
+        .catch(console.error);
+    }
+  }, [orderData, number]);
+
   const orderInfo = useMemo(() => {
-    if (!orderData || !ingredients.length) return null;
+    if (!orderData || !allIngredients.length) return null;
 
     const date = new Date(orderData.createdAt);
 
@@ -37,9 +49,9 @@ export const OrderInfo: FC = () => {
     };
 
     const ingredientsInfo = orderData.ingredients.reduce(
-      (acc: TIngredientsWithCount, item) => {
+      (acc: TIngredientsWithCount, item: string) => {
         if (!acc[item]) {
-          const ingredient = ingredients.find((ing) => ing._id === item);
+          const ingredient = allIngredients.find((ing) => ing._id === item);
           if (ingredient) {
             acc[item] = {
               ...ingredient,
@@ -52,13 +64,12 @@ export const OrderInfo: FC = () => {
 
         return acc;
       },
-      {}
+      {} as TIngredientsWithCount
     );
 
-    const total = Object.values(ingredientsInfo).reduce(
-      (acc, item) => acc + item.price * item.count,
-      0
-    );
+    const total = (
+      Object.values(ingredientsInfo) as (TIngredient & { count: number })[]
+    ).reduce((acc: number, item) => acc + item.price * item.count, 0);
 
     return {
       ...orderData,
@@ -66,9 +77,8 @@ export const OrderInfo: FC = () => {
       date,
       total
     };
-  }, [orderData, ingredients]);
+  }, [orderData, allIngredients]);
 
-  // Если заказ пока не найден, крутим лоадер
   if (!orderInfo) {
     return <Preloader />;
   }

@@ -12,7 +12,6 @@ const config: StorybookConfig = {
     name: '@storybook/react-webpack5',
     options: {},
   },
-  // Добавляем обработку алиасов проекта в Webpack Сторибука
   webpackFinal: async (config) => {
     if (config.resolve) {
       config.resolve.alias = {

@@ -1,5 +1,11 @@
 import { useEffect } from 'react';
-import { Routes, Route, useLocation, useNavigate } from 'react-router-dom';
+import {
+  Routes,
+  Route,
+  useLocation,
+  useNavigate,
+  useMatch
+} from 'react-router-dom';
 import { useDispatch } from '../../services/store';
 import { fetchIngredients } from '../../services/slices/ingredientsSlice';
 import { checkUserAuth } from '../../services/slices/userSlice';
@@ -34,6 +40,10 @@ export const App = () => {
   const handleModalClose = () => {
     navigate(-1);
   };
+
+  const profileMatch = useMatch('/profile/orders/:number')?.params.number;
+  const feedMatch = useMatch('/feed/:number')?.params.number;
+  const orderNumber = profileMatch || feedMatch || '';
 
   return (
     <div>
@@ -97,7 +107,24 @@ export const App = () => {
             </ProtectedRoute>
           }
         />
-        <Route path='/ingredients/:id' element={<IngredientDetails />} />
+        <Route
+          path='/ingredients/:id'
+          element={
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                marginTop: '120px'
+              }}
+            >
+              <h1 className='text text_type_main-large mb-8'>
+                Детали ингредиента
+              </h1>
+              <IngredientDetails />
+            </div>
+          }
+        />
         <Route path='/feed/:number' element={<OrderInfo />} />
         <Route path='*' element={<NotFound404 />} />
       </Routes>
@@ -115,7 +142,10 @@ export const App = () => {
           <Route
             path='/feed/:number'
             element={
-              <Modal title='Информация о заказе' onClose={handleModalClose}>
+              <Modal
+                title={orderNumber ? `#${orderNumber}` : 'Информация о заказе'}
+                onClose={handleModalClose}
+              >
                 <OrderInfo />
               </Modal>
             }

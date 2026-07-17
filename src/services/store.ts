@@ -8,7 +8,6 @@ import ingredientsReducer from './slices/ingredientsSlice';
 import constructorReducer from './slices/constructorSlice';
 import feedsReducer from './slices/feedsSlice';
 import ordersReducer from './slices/ordersSlice';
-// Убедись, что импорт есть
 import orderBurgerReducer from './slices/orderBurgerSlice';
 
 export const store = configureStore({
@@ -18,9 +17,9 @@ export const store = configureStore({
     constructorBurger: constructorReducer,
     feeds: feedsReducer,
     orders: ordersReducer,
-    // Вот эта строчка критически важна!
     orderBurger: orderBurgerReducer
-  }
+  },
+  devTools: process.env.NODE_ENV !== 'production'
 });
 
 export type RootState = ReturnType<typeof store.getState>;

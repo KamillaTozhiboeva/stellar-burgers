@@ -25,8 +25,10 @@ export const fetchFeeds = createAsyncThunk(
     try {
       const response = await getFeedsApi();
       return response;
-    } catch (error: any) {
-      return rejectWithValue(error.message || 'Ошибка загрузки ленты');
+    } catch (error: unknown) {
+      return rejectWithValue(
+        (error as Error).message || 'Ошибка загрузки ленты'
+      );
     }
   }
 );

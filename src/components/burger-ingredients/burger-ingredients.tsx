@@ -7,10 +7,8 @@ import { useSelector } from '../../services/store';
 import { getIngredients } from '../../services/slices/ingredientsSlice';
 
 export const BurgerIngredients: FC = () => {
-  // 1. Берём реальные ингредиенты из Redux-стора
   const allIngredients = useSelector(getIngredients);
 
-  // 2. Фильтруем ингредиенты по их типу (категориям)
   const buns = allIngredients.filter((item) => item.type === 'bun');
   const mains = allIngredients.filter((item) => item.type === 'main');
   const sauces = allIngredients.filter((item) => item.type === 'sauce');
@@ -20,17 +18,9 @@ export const BurgerIngredients: FC = () => {
   const titleMainRef = useRef<HTMLHeadingElement>(null);
   const titleSaucesRef = useRef<HTMLHeadingElement>(null);
 
-  const [bunsRef, inViewBuns] = useInView({
-    threshold: 0
-  });
-
-  const [mainsRef, inViewFilling] = useInView({
-    threshold: 0
-  });
-
-  const [saucesRef, inViewSauces] = useInView({
-    threshold: 0
-  });
+  const [bunsRef, inViewBuns] = useInView({ threshold: 0 });
+  const [mainsRef, inViewFilling] = useInView({ threshold: 0 });
+  const [saucesRef, inViewSauces] = useInView({ threshold: 0 });
 
   useEffect(() => {
     if (inViewBuns) {
@@ -51,8 +41,6 @@ export const BurgerIngredients: FC = () => {
     if (tab === 'sauce')
       titleSaucesRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
-
-  // УДАЛИЛИ "return null;" отсюда, чтобы компонент рендерился!
 
   return (
     <BurgerIngredientsUI

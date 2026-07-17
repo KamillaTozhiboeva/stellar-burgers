@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { orderBurgerApi } from '../../utils/burger-api';
 import { TOrder } from '@utils-types';
-import { RootState } from '../store'; // Обязательно импортируем RootState
+import { RootState } from '../store';
 
 interface TOrderBurgerState {
   orderRequest: boolean;
@@ -39,7 +39,7 @@ export const orderBurgerSlice = createSlice({
       })
       .addCase(orderBurger.fulfilled, (state, action) => {
         state.orderRequest = false;
-        state.orderModalData = action.payload;
+        state.orderModalData = action.payload as unknown as TOrder;
       })
       .addCase(orderBurger.rejected, (state, action) => {
         state.orderRequest = false;
@@ -50,7 +50,6 @@ export const orderBurgerSlice = createSlice({
 
 export const { clearOrder } = orderBurgerSlice.actions;
 
-// Селекторы с типизацией RootState избавят от ошибки "unknown"
 export const getOrderRequest = (state: RootState) =>
   state.orderBurger.orderRequest;
 export const getOrderModalData = (state: RootState) =>
