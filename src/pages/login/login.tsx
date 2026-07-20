@@ -23,7 +23,6 @@ export const Login: FC = () => {
     dispatch(loginUser({ email, password }))
       .unwrap()
       .then(() => {
-
         navigate(from, { replace: true });
       })
       .catch((err) => {

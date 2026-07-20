@@ -1,57 +1,55 @@
 import { FC, useEffect, useMemo } from 'react';
+import { useParams } from 'react-router-dom';
+import { useDispatch, useSelector } from '../../services/store';
 import { Preloader } from '../ui/preloader';
 import { OrderInfoUI } from '../ui/order-info';
-import { TOrder, TIngredient } from '@utils-types';
-import { useParams } from 'react-router-dom';
-import { useSelector, useDispatch } from '../../services/store';
-import { getOrderByNumberApi } from '../../utils/burger-api';
+import { TIngredient, TOrder } from '@utils-types';
+import { fetchOrderByNumber } from '../../services/slices/ordersSlice';
 
 export const OrderInfo: FC = () => {
   const { number } = useParams<{ number: string }>();
   const dispatch = useDispatch();
 
-  const feedOrders = useSelector((state) => state.feeds.orders || []);
-
-  const profileOrders = useSelector(
-    (state) => (state.orders as any).orders || state.orders || []
-  );
-  const allIngredients = useSelector(
+  const ingredients = useSelector(
     (state) => state.ingredients.ingredients || []
   );
+  const profileOrders = useSelector((state) => state.orders.history || []);
+  const feedOrders = useSelector((state) => state.feeds.orders || []);
+  const currentOrder = useSelector((state) => state.orders.currentOrder);
 
-  const orderData = useMemo(
-    () =>
-      feedOrders?.find((o: TOrder) => o.number === Number(number)) ||
-      profileOrders?.find((o: TOrder) => o.number === Number(number)) ||
-      null,
-    [feedOrders, profileOrders, number]
-  );
+  const orderData = useMemo(() => {
+    const inFeed = feedOrders.find((o: TOrder) => o.number === Number(number));
+    if (inFeed) return inFeed;
+
+    const inProfile = profileOrders.find(
+      (o: TOrder) => o.number === Number(number)
+    );
+    if (inProfile) return inProfile;
+
+    if (currentOrder && currentOrder.number === Number(number)) {
+      return currentOrder;
+    }
+
+    return null;
+  }, [feedOrders, profileOrders, currentOrder, number]);
 
   useEffect(() => {
     if (!orderData && number) {
-      getOrderByNumberApi(Number(number))
-        .then((res) => {
-          if (res.success) {
-            
-          }
-        })
-        .catch(console.error);
+      dispatch(fetchOrderByNumber(Number(number)));
     }
-  }, [orderData, number]);
+  }, [dispatch, number, orderData]);
 
   const orderInfo = useMemo(() => {
-    if (!orderData || !allIngredients.length) return null;
+    if (!orderData || !ingredients.length) return null;
 
     const date = new Date(orderData.createdAt);
 
-    type TIngredientsWithCount = {
-      [key: string]: TIngredient & { count: number };
-    };
+    type TIngredientWithCount = TIngredient & { count: number };
 
     const ingredientsInfo = orderData.ingredients.reduce(
-      (acc: TIngredientsWithCount, item: string) => {
+      (acc: { [key: string]: TIngredientWithCount }, item) => {
         if (!acc[item]) {
-          const ingredient = allIngredients.find((ing) => ing._id === item);
+          const ingredient = ingredients.find((ing) => ing._id === item);
           if (ingredient) {
             acc[item] = {
               ...ingredient,
@@ -61,15 +59,15 @@ export const OrderInfo: FC = () => {
         } else {
           acc[item].count++;
         }
-
         return acc;
       },
-      {} as TIngredientsWithCount
+      {}
     );
 
-    const total = (
-      Object.values(ingredientsInfo) as (TIngredient & { count: number })[]
-    ).reduce((acc: number, item) => acc + item.price * item.count, 0);
+    const total = Object.values(ingredientsInfo).reduce(
+      (acc, item) => acc + item.price * item.count,
+      0
+    );
 
     return {
       ...orderData,
@@ -77,11 +75,12 @@ export const OrderInfo: FC = () => {
       date,
       total
     };
-  }, [orderData, allIngredients]);
+  }, [orderData, ingredients]);
 
   if (!orderInfo) {
     return <Preloader />;
   }
 
+  // Теперь передаем правильный объект orderInfo!
   return <OrderInfoUI orderInfo={orderInfo} />;
 };

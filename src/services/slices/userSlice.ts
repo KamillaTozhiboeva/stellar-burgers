@@ -72,7 +72,6 @@ export const logoutUser = createAsyncThunk(
       await logoutApi();
       setCookie('accessToken', '', { expires: -1 });
       localStorage.removeItem('refreshToken');
-      localStorage.removeItem('refreshToken');
     } catch (error) {
       return rejectWithValue(error);
     }
@@ -116,12 +115,12 @@ export const userSlice = createSlice({
         state.error = null;
       })
       .addCase(loginUser.fulfilled, (state, action) => {
-        state.user = action.payload;
         state.isLoading = false;
+        state.user = action.payload;
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.isLoading = false;
-        const payload = action.payload as any;
+        const payload = action.payload as { message?: string } | string;
         state.error =
           typeof payload === 'string'
             ? payload
@@ -132,12 +131,12 @@ export const userSlice = createSlice({
         state.error = null;
       })
       .addCase(registerUser.fulfilled, (state, action) => {
-        state.user = action.payload;
         state.isLoading = false;
+        state.user = action.payload;
       })
       .addCase(registerUser.rejected, (state, action) => {
         state.isLoading = false;
-        const payload = action.payload as any;
+        const payload = action.payload as { message?: string } | string;
         state.error =
           typeof payload === 'string'
             ? payload
@@ -157,7 +156,7 @@ export const userSlice = createSlice({
       })
       .addCase(updateUser.rejected, (state, action) => {
         state.isLoading = false;
-        const payload = action.payload as any;
+        const payload = action.payload as { message?: string } | string;
         state.error =
           typeof payload === 'string'
             ? payload

@@ -25,6 +25,8 @@ import {
 import { IngredientDetails, OrderInfo, Modal, AppHeader } from '../index';
 import { ProtectedRoute } from '../protected-route/protected-route';
 
+import styles from './app.module.css';
+
 export const App = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -107,17 +109,12 @@ export const App = () => {
             </ProtectedRoute>
           }
         />
+
+        {/* ИСПРАВЛЕННЫЙ РОУТ */}
         <Route
           path='/ingredients/:id'
           element={
-            <div
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                marginTop: '120px'
-              }}
-            >
+            <div className={styles.ingredientPageWrap}>
               <h1 className='text text_type_main-large mb-8'>
                 Детали ингредиента
               </h1>
@@ -125,6 +122,7 @@ export const App = () => {
             </div>
           }
         />
+
         <Route path='/feed/:number' element={<OrderInfo />} />
         <Route path='*' element={<NotFound404 />} />
       </Routes>

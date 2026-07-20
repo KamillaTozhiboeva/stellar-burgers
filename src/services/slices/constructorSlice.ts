@@ -60,7 +60,6 @@ export const {
   reorderIngredients
 } = constructorSlice.actions;
 
-
 export const getConstructorState = (state: RootState) =>
   state.constructorBurger;
 
