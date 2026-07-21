@@ -82,13 +82,10 @@ module.exports = {
     }
   },
   output: {
-    path: path.resolve(__dirname, 'dist'),
-    filename: '[name].[contenthash].js',
-    clean: true,
-    publicPath: '/'
+    path: path.resolve(__dirname, './dist'),
+    filename: 'bundle.js'
   },
   devServer: {
-    historyApiFallback: true,
     static: path.join(__dirname, './dist'),
     compress: true,
     historyApiFallback: true,
