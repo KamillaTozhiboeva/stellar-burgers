@@ -24,29 +24,33 @@ describe('ingredientsSlice reducer', () => {
   ];
 
   test('should return initial state', () => {
-    expect(reducer(undefined, { type: 'UNKNOWN_ACTION' })).toEqual(initialState);
+    expect(reducer(undefined, { type: 'UNKNOWN_ACTION' })).toEqual(
+      initialState
+    );
   });
 
   test('should handle fetchIngredients.pending', () => {
-    const state = reducer(initialState, { type: fetchIngredients.pending.type });
+    const state = reducer(initialState, {
+      type: fetchIngredients.pending.type
+    });
     expect(state.isLoading).toBe(true);
     expect(state.error).toBeNull();
   });
 
   test('should handle fetchIngredients.fulfilled', () => {
-    const state = reducer(
-      initialState,
-      { type: fetchIngredients.fulfilled.type, payload: mockIngredients }
-    );
+    const state = reducer(initialState, {
+      type: fetchIngredients.fulfilled.type,
+      payload: mockIngredients
+    });
     expect(state.isLoading).toBe(false);
     expect(state.ingredients).toEqual(mockIngredients);
   });
 
   test('should handle fetchIngredients.rejected', () => {
-    const state = reducer(
-      initialState,
-      { type: fetchIngredients.rejected.type, error: { message: 'Error' } }
-    );
+    const state = reducer(initialState, {
+      type: fetchIngredients.rejected.type,
+      error: { message: 'Error' }
+    });
     expect(state.isLoading).toBe(false);
     expect(state.error).toBe('Error');
   });
