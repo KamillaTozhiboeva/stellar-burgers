@@ -50,4 +50,4 @@ BURGER_API_URL=https://norma.education-services.ru/api
 npm start
 ```
 
-После этого приложение будет доступно в браузере по адресу: http://localhost:3000/
+После этого приложение будет доступно в браузере по адресу: http://localhost:4000/
