@@ -10,9 +10,9 @@ export const ProfileMenu: FC = () => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    dispatch(logoutUser()) // Вызываем thunk выхода
+    dispatch(logoutUser())
       .unwrap()
-      .then(() => navigate('/login', { replace: true })) // Отправляем на логин
+      .then(() => navigate('/login', { replace: true }))
       .catch((err) => console.error('Ошибка:', err));
   };
 

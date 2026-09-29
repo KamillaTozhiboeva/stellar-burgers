@@ -81,6 +81,5 @@ export const OrderInfo: FC = () => {
     return <Preloader />;
   }
 
-  // Теперь передаем правильный объект orderInfo!
   return <OrderInfoUI orderInfo={orderInfo} />;
 };
